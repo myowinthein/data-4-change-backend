@@ -17,9 +17,23 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::group(['prefix' => 'v1','middleware' => 'auth:api'], function () {
-    //    Route::resource('task', 'TasksController');
-
-    //Please do not remove this if you want adminlte:route and adminlte:link commands to works correctly.
-    #adminlte_api_routes
+Route::name('category.')->group(function () {
+    Route::get('category/getAll', 'CategoryController@getAll')->name('getAll');
 });
+
+Route::name('regions.')->group(function () {
+    Route::get('region/getAll', 'RegionController@getAll')->name('getAll');
+});
+
+Route::name('data.')->group(function () {
+    Route::post('data/getAll', 'DataController@getAll')->name('getAll');
+    Route::post('data/getListing', 'DataController@getListing')->name('getListing');
+});
+
+Route::group(['prefix' => 'v1','middleware' => 'auth:api'], function () {
+});
+
+// localization
+// show listing
+// compare ?
+// export ?

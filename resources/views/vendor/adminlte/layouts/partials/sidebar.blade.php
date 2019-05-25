@@ -6,21 +6,19 @@
 
         <!-- Sidebar Menu -->
         <ul class="sidebar-menu" data-widget="tree">
-            <!-- Single Level -->
             <li class="active">
-                <a href="{{ url('home') }}">
-                    <i class='fa fa-link'></i> <span>Home</span>
+                <a href="{{ route('admin.import.index') }}">
+                    <i class='fa fa-link'></i> <span>Import</span>
                 </a>
             </li>
 
             <!-- Multiple Level -->
-            <li class="treeview">
-                <a href="#"><i class='fa fa-link'></i> <span>Export</span> <i class="fa fa-angle-left pull-right"></i></a>
+            <!-- <li class="treeview">
+                <a href="#"><span>Export</span> <i class="fa fa-angle-left pull-right"></i></a>
                 <ul class="treeview-menu">
-                    <li><a href="#">{{ trans('adminlte_lang::message.linklevel2') }}</a></li>
-                    <li><a href="#">{{ trans('adminlte_lang::message.linklevel2') }}</a></li>
+                    <li><a href="#">Education</a></li>
                 </ul>
-            </li>
+            </li> -->
         </ul>
     </section>
 </aside>
