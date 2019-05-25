@@ -25,13 +25,13 @@ class DataController extends Controller
         $year = $request->input('year', '');
 
         // fake
-        $regions = Region::where('id', 'cdeb84c3-82e1-4fe6-bf42-3374e0af209a')->with('cities')->first();
-        $cities = $regions->cities()->pluck('id');
+        // $regions = Region::where('id', 'cdeb84c3-82e1-4fe6-bf42-3374e0af209a')->with('cities')->first();
+        // $cities = $regions->cities()->pluck('id');
 
-        $subCategories = SubCategory::where('id', '8c50ea76-71f4-4598-b663-a5f4c9185392')->with('variables')->first();
-        $variables = $subCategories->variables()->pluck('id');
+        // $subCategories = SubCategory::where('id', '8c50ea76-71f4-4598-b663-a5f4c9185392')->with('variables')->first();
+        // $variables = $subCategories->variables()->pluck('id');
 
-        $year = 2019;
+        // $year = 2019;
 
         // category (subcategory filter)
         // $categories = Category::whereHas('subCategories', function ($query) use ($subCategories) {
