@@ -30,7 +30,7 @@ Route::name('regions.')->group(function () {
 });
 
 Route::name('data.')->group(function () {
-    Route::post('data/getAllForCity', 'DataController@getAllForCity')->name('getAllForCity');
+    Route::post('data/getAllForOverall', 'DataController@getAllForOverall')->name('getAllForOverall');
     Route::post('data/getListing', 'DataController@getListing')->name('getListing');
     Route::post('data/compare', 'DataController@compare')->name('compare');
 });

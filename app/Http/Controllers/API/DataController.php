@@ -17,7 +17,7 @@ use App\Http\Resources\DataResource;
 
 class DataController extends Controller
 {
-    public function getAllForCity(Request $request) {
+    public function getAllForOverall(Request $request) {
         // all body data
         $lang = $request->input('lang', 'en');
         $variables = $request->input('variables', []);

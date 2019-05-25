@@ -19,7 +19,7 @@ class SubCategoryResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->{'name_'. $lang},
-            'variables' => VariableResource::collection($this->variables)
+            'children' => VariableResource::collection($this->variables)
         ];
     }
 }

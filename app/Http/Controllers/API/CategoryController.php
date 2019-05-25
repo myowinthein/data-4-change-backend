@@ -6,13 +6,14 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\SubCategory;
+use App\Http\Resources\CategoryResource;
 use App\Http\Resources\SubCategoryResource;
 
 class CategoryController extends Controller
 {
     public function getAll(Request $request) {
         $lang = $request->input('lang', 'en');
-        $categories = Category::with('subCategories')->orderBy('name_'. $lang, 'asc')->get();
+        $categories = Category::with('subCategories.variables')->orderBy('name_'. $lang, 'asc')->get();
         return CategoryResource::collection($categories);
     }
 

@@ -17,11 +17,9 @@ class RegionResource extends JsonResource
         $lang = $request->input('lang', 'en');
 
         return [
-            'region' => [
-                'id' => $this->id,
-                'name' => $this->{'name_'. $lang}
-            ],
-            'cities' => CityResource::collection($this->cities)
+            'id' => $this->id,
+            'name' => $this->{'name_'. $lang},
+            'children' => CityResource::collection($this->cities)
         ];
     }
 }
