@@ -11,9 +11,11 @@ class RegionController extends Controller
 {
     public function getAll(Request $request) {
         $lang = $request->input('lang', 'en');
+
         $regions = Region::with(['cities' => function($query) use ($lang) {
             $query->orderBy('name_'. $lang, 'asc');
         }])->orderBy('name_'. $lang, 'asc')->get();
+
         return RegionResource::collection($regions);
     }
 }

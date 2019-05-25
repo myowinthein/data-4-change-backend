@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class SubCategoryResource extends JsonResource
+class VariableResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -19,7 +19,6 @@ class SubCategoryResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->{'name_'. $lang},
-            'variables' => VariableResource::collection($this->variables)
         ];
     }
 }

@@ -13,7 +13,7 @@
 
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('imports');
 });
 
 Route::group(['middleware' => 'auth'], function () {

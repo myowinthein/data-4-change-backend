@@ -21,19 +21,19 @@ Route::name('category.')->group(function () {
     Route::get('category/getAll', 'CategoryController@getAll')->name('getAll');
 });
 
+Route::name('subcategory.')->group(function () {
+    Route::get('subcategory/getAll', 'CategoryController@getAllSub')->name('getAllSub');
+});
+
 Route::name('regions.')->group(function () {
     Route::get('region/getAll', 'RegionController@getAll')->name('getAll');
 });
 
 Route::name('data.')->group(function () {
-    Route::post('data/getAll', 'DataController@getAll')->name('getAll');
+    Route::post('data/getAllForCity', 'DataController@getAllForCity')->name('getAllForCity');
     Route::post('data/getListing', 'DataController@getListing')->name('getListing');
+    Route::post('data/compare', 'DataController@compare')->name('compare');
 });
 
 Route::group(['prefix' => 'v1','middleware' => 'auth:api'], function () {
 });
-
-// localization
-// show listing
-// compare ?
-// export ?
