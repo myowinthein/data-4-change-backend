@@ -31,8 +31,8 @@ Route::name('regions.')->group(function () {
 
 Route::name('data.')->group(function () {
     Route::post('data/getAllForOverall', 'DataController@getAllForOverall')->name('getAllForOverall');
-    Route::post('data/getListing', 'DataController@getListing')->name('getListing');
-    Route::post('data/compare', 'DataController@compare')->name('compare');
+    Route::post('data/getAllForCompare', 'DataController@getAllForCompare')->name('getAllForCompare');
+    // Route::post('data/getListing', 'DataController@getListing')->name('getListing');
 });
 
 Route::group(['prefix' => 'v1','middleware' => 'auth:api'], function () {
