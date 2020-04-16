@@ -1,30 +1,46 @@
-# Source of CSS files
+### Tool Requirements
 
-All files are taken from AdminLTE project https://github.com/almasaeed2010/AdminLTE
+| Title | Version |
+| -- | -- |
+| Apache | 2.4.41 |
+| PHP | 7.3.11 |
+| MySQL | 8.0.19 |
+| Composer | 1.9.0 |
 
-Some files are obtained from Bower installed same way AdminLTE to avoid problems.
+___
 
-This package only provides/supports AdminLTE files for a Blank page as seen in:
+### Installation
 
-https://github.com/almasaeed2010/AdminLTE/blob/master/pages/examples/blank.html
+__.env__
 
-If you need more assets, css, javascript dependencies, etc, please you have to install it yourself.
+- Copy from [.env.example](#.env.example)
 
-./ is base folder of AdminLTE 
+__Virtual Host__
 
-## Files
+- data4change.local
+- data4change.local/api
 
-### Pratt Landing Page
+__Terminal__
 
-http://blacktie.co/2013/10/pratt-app-landing-page/
+```bash
+#clone the repository
+git clone url
 
-### ADMINLTE
+#install packages
+composer install
 
-bootstrap.min.css:
-./bower_components/bootstrap/dist/css/bootstrap.min.css
+#migrate & seed database
+php artisan migrate:refresh --seed
 
-font-awesome.min.css:
-./bower_components/font-awesome/css/font-awesome.min.css
+#add jwt key
+php artisan jwt:secret
 
-ionicons.min.css:
-../../bower_components/Ionicons/css/ionicons.min.css
+#link storage to public
+php artisan storage:link
+```
+___
+
+### Login
+
+- Root
+	- admin@data4change.com, password
