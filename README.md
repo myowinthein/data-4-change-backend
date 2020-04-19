@@ -14,11 +14,11 @@ ___
 ##### .env
 `Copy from .env.example`
 
-__Virtual Host__
+##### Virtual Host
 - data4change.local
 - data4change.local/api
 
-__Terminal__
+##### Terminal
 
 ```shell
 #clone the repository
