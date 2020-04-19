@@ -24,7 +24,7 @@ ___
 #clone the repository
 git clone git@gitlab.com:data-4-change/backend.git
 
-#install packages
+#install composer packages
 composer install
 
 #migrate & seed database
