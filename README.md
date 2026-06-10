@@ -1,45 +1,52 @@
-### Tool Requirements
+# Data for Change — Backend
 
-| Title | Version |
-| -- | -- |
-| Apache | 2.4.41 |
-| PHP | 7.3.11 |
-| MySQL | 8.0.19 |
-| Composer | 1.9.0 |
+Myanmar open-data platform built at a hackathon in May 2019 by **Team Novit**.
+Exposes national government statistics (health, demographics, agriculture, disasters, living standards, heritage) via a REST API consumed by a Nuxt SPA frontend.
 
-___
+---
 
-### Installation
+## Quick Start
 
-##### .env
-`Copy from .env.example`
+```bash
+# 1. Build and start backend (PHP 7.4 + MySQL 8.0 via Docker)
+docker compose up -d
 
-##### Virtual Host
-- data4change.local
-- data4change.local/api
-
-##### Terminal
-
-```shell
-#clone the repository
-git clone git@gitlab.com:data-4-change/backend.git
-
-#install composer packages
-composer install
-
-#migrate & seed database
-php artisan migrate:refresh --seed
-
-#add jwt key
-php artisan jwt:secret
-
-#link storage to public
-php artisan storage:link
+# 2. Start frontend in a separate terminal (from the frontend repo)
+cd ../frontend
+yarn dev
 ```
-___
 
-### Login
+| Service | URL |
+|---|---|
+| Backend API + Admin | http://localhost:8100 |
+| Frontend SPA | http://localhost:3000 |
+| MySQL (host access) | localhost:3307 |
 
-| Type | Email | Password |
-| -- | -- | -- |
-| Root | admin@data4change.com | password |
+**Admin login:** `admin@data4change.com` / `password`
+
+> First `docker compose up` takes ~30 seconds for MySQL to initialise and import the SQL dump.
+
+---
+
+## Documentation
+
+| Doc | Contents |
+|---|---|
+| [docs/overview.md](docs/overview.md) | Project purpose, business domain, data categories |
+| [docs/architecture.md](docs/architecture.md) | System design, data model, request flow |
+| [docs/setup.md](docs/setup.md) | Full verified setup instructions |
+| [docs/demo.md](docs/demo.md) | Demo accounts, workflows, screenshots guide |
+| [docs/api.md](docs/api.md) | All REST API endpoints with request/response examples |
+| [docs/integrations.md](docs/integrations.md) | External dependencies and service stubs |
+| [docs/recovery-notes.md](docs/recovery-notes.md) | Fixes applied during restoration (read before touching anything) |
+| [docs/historical-notes.md](docs/historical-notes.md) | Original project context, team, hackathon background |
+| [docs/limitations.md](docs/limitations.md) | Known incomplete features and permanent constraints |
+| [docs/future-me.md](docs/future-me.md) | Warnings and advice for restoring this years from now |
+| [docs/archive-metadata.md](docs/archive-metadata.md) | Versions, dates, file inventory, archive status |
+
+---
+
+## Repository
+
+- **Backend:** `git@gitlab.com:hackathon7814206/data-for-change/backend.git`
+- **Frontend:** `git@gitlab.com:hackathon7814206/data-for-change/frontend.git` *(separate repo)*

@@ -11,7 +11,7 @@
         "php": "^7.1.3",
         "acacha/admin-lte-template-laravel": "^6.0",
         "barryvdh/laravel-cors": "^0.11.3",
-        "davejamesmiller/laravel-breadcrumbs": "5.x",
+        "diglactic/laravel-breadcrumbs": "^5.0",
         "doctrine/dbal": "^2.9",
         "fideloper/proxy": "^4.0",
         "laravel/framework": "5.8.*",

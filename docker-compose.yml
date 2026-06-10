@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8100:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: on-failure
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: data4change
+      MYSQL_USER: data4change
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: rootsecret
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./storage/backup/data4change_2019-05-25.sql:/docker-entrypoint-initdb.d/01_dump.sql
+      - ./docker/mysql/custom.cnf:/etc/mysql/conf.d/custom.cnf
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "data4change", "-psecret"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    ports:
+      - "3307:3306"
+
+  # Frontend is run separately from the frontend repo — not managed by this compose file.
+  # cd /opt/homebrew/var/www/gitlab/hackathon/data-for-change/frontend && yarn dev
+
+volumes:
+  db_data:

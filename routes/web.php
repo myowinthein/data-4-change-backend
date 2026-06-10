@@ -12,8 +12,9 @@
 */
 
 
+// view('imports') was never created; redirect to login which leads to the import panel.
 Route::get('/', function () {
-    return view('imports');
+    return redirect('/login');
 });
 
 Route::group(['middleware' => 'auth'], function () {

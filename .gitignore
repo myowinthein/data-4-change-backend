@@ -4,8 +4,22 @@
 /storage/*.key
 /vendor
 .env
+.env.dusk.local
+.env.dusk.testing
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
 npm-debug.log
 yarn-error.log
+
+# OS generated
+.DS_Store
+.DS_Store?
+Thumbs.db
+._*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo

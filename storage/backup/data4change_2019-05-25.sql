@@ -17805,7 +17805,7 @@ LOCK TABLES `users` WRITE;
 
 INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`)
 VALUES
-	('f4f1d72f-20f9-4d34-b204-4fb1b6b0ed0c','Admin','admin@data4change.com','2019-05-24 04:03:20','$2y$10$MvS2fN6sfZJg7bf0uJ9B2.YNXKJwWOhfKWUDcikyMfONCRJyytVeC','3c6vLwVccl','2019-05-19 04:03:20','2019-05-23 04:03:20');
+	('f4f1d72f-20f9-4d34-b204-4fb1b6b0ed0c','Admin','admin@data4change.com','2019-05-24 04:03:20','$2y$10$MvS2fN6sfZJg7bf0uJ9B2.YNXKJwWOhfKWUDcikyMfONCRJyytVeC',NULL,'2019-05-19 04:03:20','2019-05-23 04:03:20');
 
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;

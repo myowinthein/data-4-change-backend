@@ -1,0 +1,635 @@
+{
+  "info": {
+    "_postman_id": "dfc-collection-001",
+    "name": "Data for Change",
+    "description": "Myanmar open-data platform — REST API collection.\n\nBuilt at a hackathon in May 2019 by Team Novit.\n\n**Setup:** Start the backend with `docker compose up -d` from the backend repo, then import this collection alongside the `data-for-change.postman_environment.json` environment file.\n\n**Base URL:** http://localhost:8100\n\n**All API endpoints are public** — no authentication or token required.\n\n**Important notes:**\n- All data in the database uses `year=2019`\n- The `getAllForOverall` response always shows `Standard of Living` as the top-level category name due to a loop bug in the original code — the variable data inside the response is correct\n- `getAllForCompare` only returns religion/demographic data; other categories are commented out in the source\n- City and year filtering in `getAllForCompare` is not implemented (WHERE clause is commented out)\n\nSee `docs/limitations.md` for full details.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Health Check",
+      "description": "Quick sanity checks to confirm the backend is running.",
+      "item": [
+        {
+          "name": "Root redirect",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            },
+            "description": "Root URL. Returns HTTP 302 → /login. Confirms Apache and Laravel are responding."
+          },
+          "response": []
+        },
+        {
+          "name": "Login page (HTML)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/login",
+              "host": ["{{base_url}}"],
+              "path": ["login"]
+            },
+            "description": "Returns HTTP 200 with the AdminLTE login page HTML. Confirms session/view system is working."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Reference Data",
+      "description": "Read-only endpoints that return the taxonomy and geography. Call these first to get the UUIDs needed for the data endpoints.\n\nAll IDs are stable UUIDs — they do not change between runs (they come from the SQL dump).",
+      "item": [
+        {
+          "name": "Get all categories (English)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_url}}/category/getAll?lang={{lang}}",
+              "host": ["{{api_url}}"],
+              "path": ["category", "getAll"],
+              "query": [
+                {
+                  "key": "lang",
+                  "value": "{{lang}}",
+                  "description": "Language: 'en' or 'mm'"
+                }
+              ]
+            },
+            "description": "Returns all 6 categories, each with their subcategories and variables nested as `children` arrays.\n\nThis is the primary reference for variable IDs used in the data POST endpoints.\n\n**Response shape:**\n```json\n{\n  \"data\": [\n    {\n      \"id\": \"uuid\",\n      \"name\": \"Agriculture\",\n      \"children\": [\n        {\n          \"id\": \"uuid\",\n          \"name\": \"Live Stock\",\n          \"children\": [\n            { \"id\": \"uuid\", \"name\": \"Beef Production (ton)\" },\n            ...\n          ]\n        }\n      ]\n    },\n    ...\n  ]\n}\n```\n\n**Categories returned:**\n- Agriculture (Live Stock — 5 variables)\n- Demographic (Religion — 5 variables)\n- Health (Number of Hospitals — 7 variables)\n- Natural Disasters and Hazards (Risk Percentage — 5 variables)\n- Religious and Historical Sites (Heritage Buildings — 1 variable)\n- Standard of Living (Drinking Water — 6 variables)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get all categories (Myanmar script)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_url}}/category/getAll?lang=mm",
+              "host": ["{{api_url}}"],
+              "path": ["category", "getAll"],
+              "query": [
+                {
+                  "key": "lang",
+                  "value": "mm",
+                  "description": "Returns names in Myanmar/Burmese script"
+                }
+              ]
+            },
+            "description": "Same as 'Get all categories' but returns all names in Myanmar script (Unicode).\n\nExample category names returned:\n- ကျန်းမာရေး (Health)\n- လူထုအချက်အလက် (Demographic)\n- စိုက်ပျိုးရေးနှင့် မွေးမြူရေး (Agriculture)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get all subcategories (flat list)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_url}}/subcategory/getAll?lang={{lang}}",
+              "host": ["{{api_url}}"],
+              "path": ["subcategory", "getAll"],
+              "query": [
+                {
+                  "key": "lang",
+                  "value": "{{lang}}"
+                }
+              ]
+            },
+            "description": "Returns all 6 subcategories as a flat list, each with their variables as `children`.\n\nThis is a flat alternative to the nested category tree.\n\n**Response shape:**\n```json\n{\n  \"data\": [\n    {\n      \"id\": \"uuid\",\n      \"name\": \"Heritage Buildings\",\n      \"children\": [\n        { \"id\": \"uuid\", \"name\": \"Number of Building\" }\n      ]\n    },\n    ...\n  ]\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Get all regions with cities (English)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_url}}/region/getAll?lang={{lang}}",
+              "host": ["{{api_url}}"],
+              "path": ["region", "getAll"],
+              "query": [
+                {
+                  "key": "lang",
+                  "value": "{{lang}}"
+                }
+              ]
+            },
+            "description": "Returns all 18 Myanmar regions/states, each with their cities nested as `children` arrays.\n\nThis is the primary reference for city IDs used in the data POST endpoints.\n\n**Response shape:**\n```json\n{\n  \"data\": [\n    {\n      \"id\": \"uuid\",\n      \"name\": \"Ayeyarwady\",\n      \"children\": [\n        { \"id\": \"uuid\", \"name\": \"Bogale\" },\n        { \"id\": \"uuid\", \"name\": \"Danubyu\" },\n        ...\n      ]\n    },\n    ...\n  ]\n}\n```\n\n**18 regions:** Ayeyarwady, Bago (East), Bago (West), Chin, Kachin, Kayah, Karen, Magway, Mandalay, Mon, Naypyidaw, Rakhine, Sagaing, Shan (East), Shan (North), Shan (South), Tanintharyi, Yangon\n\n**356 cities total** across all regions."
+          },
+          "response": []
+        },
+        {
+          "name": "Get all regions with cities (Myanmar script)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_url}}/region/getAll?lang=mm",
+              "host": ["{{api_url}}"],
+              "path": ["region", "getAll"],
+              "query": [
+                {
+                  "key": "lang",
+                  "value": "mm"
+                }
+              ]
+            },
+            "description": "Same as 'Get all regions with cities' but returns names in Myanmar script."
+          },
+          "response": []
+        },
+        {
+          "name": "Get regions only (no cities)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{api_url}}/region/getAll?lang={{lang}}&isDivisonOnly=true",
+              "host": ["{{api_url}}"],
+              "path": ["region", "getAll"],
+              "query": [
+                {
+                  "key": "lang",
+                  "value": "{{lang}}"
+                },
+                {
+                  "key": "isDivisonOnly",
+                  "value": "true",
+                  "description": "When 'true', returns only region name and ID — no cities nested inside"
+                }
+              ]
+            },
+            "description": "Returns all 18 regions without their city children. Useful when you only need region-level selection.\n\n**Response shape:**\n```json\n{\n  \"data\": [\n    { \"id\": \"uuid\", \"name\": \"Ayeyarwady\" },\n    ...\n  ]\n}\n```"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Statistical Data — Overview",
+      "description": "POST endpoint that returns filtered statistical data by variable(s), city(ies), and year.\n\n**Required:** `year` must be `2019` — that is the only year stored in the database.\n\n**Known bug in original code:** The `category.name` field in the response always shows `Standard of Living` regardless of which category the variable belongs to. The variable data inside `subCategory[].variable_city` is correct.\n\nSee `docs/limitations.md` for details.",
+      "item": [
+        {
+          "name": "Overview — Demographic: Buddhist population",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lang\": \"{{lang}}\",\n  \"variables\": [\"{{var_buddhist}}\"],\n  \"cities\": [\"{{city_bogale}}\"],\n  \"year\": \"{{year}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{api_url}}/data/getAllForOverall",
+              "host": ["{{api_url}}"],
+              "path": ["data", "getAllForOverall"]
+            },
+            "description": "Returns Buddhist population count for Bogale city in 2019.\n\n**Verified response includes:**\n```json\n{\n  \"data\": [{\n    \"category\": { \"name\": \"Standard of Living\" },\n    \"subCategory\": [{\n      \"subCat\": { \"name\": \"Religion\" },\n      \"variable_city\": {\n        \"buddhist\": [{\n          \"id\": \"uuid\",\n          \"name\": \"Buddhist\",\n          \"city_name\": \"Bogale\",\n          \"value\": \"313483\"\n        }]\n      }\n    }]\n  }]\n}\n```\n\nNote: `category.name` shows `Standard of Living` due to loop bug — actual data is from Demographic category."
+          },
+          "response": []
+        },
+        {
+          "name": "Overview — Demographic: Multiple religion variables, two cities",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lang\": \"{{lang}}\",\n  \"variables\": [\n    \"{{var_buddhist}}\",\n    \"{{var_muslim}}\",\n    \"{{var_animist}}\"\n  ],\n  \"cities\": [\n    \"{{city_bogale}}\",\n    \"{{city_danubyu}}\"\n  ],\n  \"year\": \"{{year}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{api_url}}/data/getAllForOverall",
+              "host": ["{{api_url}}"],
+              "path": ["data", "getAllForOverall"]
+            },
+            "description": "Returns Buddhist, Muslim, and Animist population for two Ayeyarwady cities (Bogale and Danubyu) in 2019.\n\nDemonstrates multi-variable and multi-city filtering."
+          },
+          "response": []
+        },
+        {
+          "name": "Overview — Health: Sangha hospitals",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lang\": \"{{lang}}\",\n  \"variables\": [\"{{var_sangha_hospitals}}\"],\n  \"cities\": [\"{{city_bogale}}\"],\n  \"year\": \"{{year}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{api_url}}/data/getAllForOverall",
+              "host": ["{{api_url}}"],
+              "path": ["data", "getAllForOverall"]
+            },
+            "description": "Returns number of Sangha (Buddhist monk) hospitals in Bogale city for 2019.\n\nVariable: `Number of Sangha Hospitals` from the Health category."
+          },
+          "response": []
+        },
+        {
+          "name": "Overview — Health: Two hospital types",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lang\": \"{{lang}}\",\n  \"variables\": [\n    \"{{var_sangha_hospitals}}\",\n    \"{{var_mental_hospitals}}\"\n  ],\n  \"cities\": [\n    \"{{city_bogale}}\",\n    \"{{city_danubyu}}\"\n  ],\n  \"year\": \"{{year}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{api_url}}/data/getAllForOverall",
+              "host": ["{{api_url}}"],
+              "path": ["data", "getAllForOverall"]
+            },
+            "description": "Returns counts for Sangha hospitals and Mental hospitals across two cities."
+          },
+          "response": []
+        },
+        {
+          "name": "Overview — Agriculture: Beef production",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lang\": \"{{lang}}\",\n  \"variables\": [\n    \"{{var_beef}}\",\n    \"{{var_pork}}\"\n  ],\n  \"cities\": [\"{{city_bogale}}\"],\n  \"year\": \"{{year}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{api_url}}/data/getAllForOverall",
+              "host": ["{{api_url}}"],
+              "path": ["data", "getAllForOverall"]
+            },
+            "description": "Returns beef and pork production tonnage for Bogale city in 2019.\n\nVariable IDs from Agriculture > Live Stock subcategory."
+          },
+          "response": []
+        },
+        {
+          "name": "Overview — Standard of Living: Tap water",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lang\": \"{{lang}}\",\n  \"variables\": [\"{{var_tap_water}}\"],\n  \"cities\": [\"{{city_bogale}}\"],\n  \"year\": \"{{year}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{api_url}}/data/getAllForOverall",
+              "host": ["{{api_url}}"],
+              "path": ["data", "getAllForOverall"]
+            },
+            "description": "Returns number of households using tap/piped water in Bogale city for 2019.\n\nVariable from Standard of Living > Total Households on Drinking Water."
+          },
+          "response": []
+        },
+        {
+          "name": "Overview — Natural Disasters: Flooding risk",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lang\": \"{{lang}}\",\n  \"variables\": [\"{{var_flooding_risk}}\"],\n  \"cities\": [\"{{city_bogale}}\"],\n  \"year\": \"{{year}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{api_url}}/data/getAllForOverall",
+              "host": ["{{api_url}}"],
+              "path": ["data", "getAllForOverall"]
+            },
+            "description": "Returns flooding risk percentage for Bogale city in 2019.\n\nVariable from Natural Disasters and Hazards > Risk Percentage by Township Area."
+          },
+          "response": []
+        },
+        {
+          "name": "Overview — Heritage Buildings count",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lang\": \"{{lang}}\",\n  \"variables\": [\"{{var_heritage_buildings}}\"],\n  \"cities\": [\"{{city_bogale}}\"],\n  \"year\": \"{{year}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{api_url}}/data/getAllForOverall",
+              "host": ["{{api_url}}"],
+              "path": ["data", "getAllForOverall"]
+            },
+            "description": "Returns heritage building count for Bogale city in 2019.\n\nVariable from Religious and Historical Sites > Heritage Buildings."
+          },
+          "response": []
+        },
+        {
+          "name": "Overview — Myanmar language response",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lang\": \"mm\",\n  \"variables\": [\"{{var_buddhist}}\"],\n  \"cities\": [\"{{city_bogale}}\"],\n  \"year\": \"{{year}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{api_url}}/data/getAllForOverall",
+              "host": ["{{api_url}}"],
+              "path": ["data", "getAllForOverall"]
+            },
+            "description": "Same as 'Buddhist population' but with `lang=mm`. Returns all name fields in Myanmar script.\n\nDemonstrates the bilingual support of the API."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. Statistical Data — Compare",
+      "description": "POST endpoint that returns comparative data across regions and cities.\n\n**Known limitation:** Only returns religion/demographic data. The disaster data section is commented out in the source. City and year filtering is also not implemented — all cities and all years are always returned regardless of the request body.\n\nSee `docs/limitations.md` for details.",
+      "item": [
+        {
+          "name": "Compare — Religion across all regions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lang\": \"{{lang}}\",\n  \"cities\": [],\n  \"year\": \"{{year}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{api_url}}/data/getAllForCompare",
+              "host": ["{{api_url}}"],
+              "path": ["data", "getAllForCompare"]
+            },
+            "description": "Returns religious demographic breakdown (Buddhist, Christian, Hindu, Muslim, Animist) for all cities grouped by region.\n\n**Note:** The `cities` and `year` filter parameters are ignored — the endpoint always returns all data. This is a known limitation in the original code (WHERE clause is commented out).\n\n**Response shape:**\n```json\n{\n  \"<region-uuid>\": [\n    {\n      \"region\": { \"id\": \"uuid\", \"name\": \"Shan (North)\" },\n      \"city_name\": \"Pangsang\",\n      \"Animist\": 0,\n      \"Buddhist\": 0,\n      \"Christian\": 0,\n      \"Hindu\": 0,\n      \"Muslim\": 0\n    },\n    ...\n  ],\n  ...\n}\n```\n\n18 region keys, 330 city entries total."
+          },
+          "response": []
+        },
+        {
+          "name": "Compare — Religion (Myanmar language)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lang\": \"mm\",\n  \"cities\": [],\n  \"year\": \"{{year}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{api_url}}/data/getAllForCompare",
+              "host": ["{{api_url}}"],
+              "path": ["data", "getAllForCompare"]
+            },
+            "description": "Same as 'Compare — Religion' but with `lang=mm`. Region and city names are returned in Myanmar script."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. Admin Panel (Web — Session Auth)",
+      "description": "Web routes for the admin panel. These are HTML-based (not JSON API) and require session authentication.\n\nAuthentication flow:\n1. GET /login → get CSRF token from `<meta name=\"csrf-token\">` in the HTML response\n2. POST /login with `_token`, `email`, `password` → sets session cookie\n3. Subsequent requests send the session cookie\n\n**Demo credentials:** admin@data4change.com / password\n\nNote: Import buttons in the admin panel will fail with file-not-found errors — the CSV source files are not in the repository. The panel is shown for demonstration only.",
+      "item": [
+        {
+          "name": "Get login page (fetch CSRF token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Extract CSRF token from the HTML response",
+                  "const html = pm.response.text();",
+                  "const match = html.match(/csrf-token\"\\s+content=\"([^\"]+)\"/);",
+                  "if (match) {",
+                  "    pm.environment.set('csrf_token', match[1]);",
+                  "    console.log('CSRF token captured:', match[1].substring(0, 20) + '...');",
+                  "} else {",
+                  "    console.warn('CSRF token not found in response');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/login",
+              "host": ["{{base_url}}"],
+              "path": ["login"]
+            },
+            "description": "Loads the login page and extracts the CSRF token into the `csrf_token` environment variable via the test script.\n\n**Run this before 'POST Login'.** The CSRF token is required for the login form submission."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Login (submit credentials)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// After successful login, Laravel redirects to /import",
+                  "// Status 302 = login accepted (redirecting to dashboard)",
+                  "// Status 422 = validation error (wrong credentials)",
+                  "if (pm.response.code === 302) {",
+                  "    console.log('Login successful — session cookie set');",
+                  "} else {",
+                  "    console.warn('Login may have failed — status:', pm.response.code);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "_token",
+                  "value": "{{csrf_token}}",
+                  "description": "CSRF token — auto-filled by 'Get login page' test script"
+                },
+                {
+                  "key": "email",
+                  "value": "admin@data4change.com",
+                  "description": "Demo admin email"
+                },
+                {
+                  "key": "password",
+                  "value": "password",
+                  "description": "Demo admin password"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/login",
+              "host": ["{{base_url}}"],
+              "path": ["login"]
+            },
+            "description": "Submits the login form. Requires the `csrf_token` variable to be set by running 'Get login page' first.\n\nA successful login returns HTTP 302 → /import and sets a session cookie.\n\n**In Postman:** Enable 'Automatically follow redirects' and 'Send cookies' to see the import panel HTML on the redirect.\n\n**Demo credentials:**\n- Email: admin@data4change.com\n- Password: password"
+          },
+          "response": []
+        },
+        {
+          "name": "Get import panel (requires active session)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/import",
+              "host": ["{{base_url}}"],
+              "path": ["import"]
+            },
+            "description": "Returns the data import admin panel HTML (HTTP 200) if a valid session cookie is present.\n\nReturns HTTP 302 → /login if no session is active.\n\n**Run 'POST Login' before this request** to establish a session.\n\nThe panel shows import buttons for: Regions, Cities, Townships, Hospitals, Drinking Water, Religion, Live Stock, Disasters, Heritage Buildings."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "6. Auth-Protected API (Not Implemented)",
+      "description": "The API has a token-protected `/api/user` endpoint and a `/api/v1/` group defined in routes, but neither is implemented.\n\n- `GET /api/user` redirects to login (HTTP 302) — no token-based auth is wired up\n- `GET/POST /api/v1/*` — route group exists but is empty\n\nThese requests are included for documentation completeness. They will not return JSON data.",
+      "item": [
+        {
+          "name": "GET /api/user — NOT IMPLEMENTED (returns 302)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN_HERE",
+                "disabled": true,
+                "description": "Token auth is not wired up — this header has no effect"
+              }
+            ],
+            "url": {
+              "raw": "{{api_url}}/user",
+              "host": ["{{api_url}}"],
+              "path": ["user"]
+            },
+            "description": "**NOT IMPLEMENTED.** Returns HTTP 302 → /login.\n\nThis endpoint uses `auth:api` middleware which expects a Laravel API token. No token-based authentication was implemented in the original codebase. The `api_token` column does not exist in the users table."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": []
+}
