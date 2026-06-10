@@ -4,9 +4,12 @@
 
 **Data for Change** was built during a hackathon in **May 2019** by **Team Novit**.
 
-The project was hosted on GitLab under the group `hackathon7814206`:
-- Backend: `git@gitlab.com:hackathon7814206/data-for-change/backend.git`
-- Frontend: `git@gitlab.com:hackathon7814206/data-for-change/frontend.git`
+The project was originally hosted on GitLab under the group `hackathon7814206`:
+- Backend (original): `git@gitlab.com:hackathon7814206/data-for-change/backend.git`
+- Frontend (original): `git@gitlab.com:hackathon7814206/data-for-change/frontend.git`
+
+The backend was migrated to GitHub in June 2026:
+- Backend (current): `git@github.com:myowinthein/data-4-change-backend.git`
 
 ## Original Stack (as documented at the time)
 

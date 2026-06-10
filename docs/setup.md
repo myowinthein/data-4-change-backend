@@ -20,7 +20,7 @@ This is the verified setup procedure. Every step has been tested and confirmed w
 ### 1. Clone the repository
 
 ```bash
-git clone git@gitlab.com:hackathon7814206/data-for-change/backend.git
+git clone git@github.com:myowinthein/data-4-change-backend.git
 cd backend
 ```
 

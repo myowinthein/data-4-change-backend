@@ -72,7 +72,7 @@ docker compose up -d
 
 ## The Frontend
 
-The frontend is a **separate git repository**. It is not inside this backend repo. Look for it at `../frontend` relative to the backend, or at `git@gitlab.com:hackathon7814206/data-for-change/frontend.git`.
+The frontend is a **separate git repository**. It is not inside this backend repo. Look for it at `../frontend` relative to the backend, or at `git@gitlab.com:hackathon7814206/data-for-change/frontend.git` (still on GitLab).
 
 The frontend is not managed by `docker-compose.yml`. Run it separately:
 

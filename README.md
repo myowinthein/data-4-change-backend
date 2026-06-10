@@ -48,5 +48,5 @@ yarn dev
 
 ## Repository
 
-- **Backend:** `git@gitlab.com:hackathon7814206/data-for-change/backend.git`
-- **Frontend:** `git@gitlab.com:hackathon7814206/data-for-change/frontend.git` *(separate repo)*
+- **Backend:** `git@github.com:myowinthein/data-4-change-backend.git`
+- **Frontend:** `git@gitlab.com:hackathon7814206/data-for-change/frontend.git` *(separate repo, still on GitLab)*

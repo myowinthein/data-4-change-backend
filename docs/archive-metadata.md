@@ -16,8 +16,8 @@
 
 | Repo | URL |
 |---|---|
-| Backend | `git@gitlab.com:hackathon7814206/data-for-change/backend.git` |
-| Frontend | `git@gitlab.com:hackathon7814206/data-for-change/frontend.git` |
+| Backend | `git@github.com:myowinthein/data-4-change-backend.git` |
+| Frontend | `git@gitlab.com:hackathon7814206/data-for-change/frontend.git` *(still on GitLab)* |
 | Last commit (backend) | `bb07342` — "Update README.md" |
 | Branch | `master` (only branch) |
 
