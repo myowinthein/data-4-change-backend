@@ -35,5 +35,9 @@ Route::name('data.')->group(function () {
     // Route::post('data/getListing', 'DataController@getListing')->name('getListing');
 });
 
+Route::name('year.')->group(function () {
+    Route::get('year/getAll', 'DataController@getYears')->name('getYears');
+});
+
 Route::group(['prefix' => 'v1','middleware' => 'auth:api'], function () {
 });

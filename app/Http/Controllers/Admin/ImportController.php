@@ -21,6 +21,7 @@ use App\Imports\Development\HeritageBuildingsImport;
 
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 
 class ImportController extends Controller
@@ -32,6 +33,27 @@ class ImportController extends Controller
 
     public function index () {
         return view('admin.import.index');
+    }
+
+    /**
+     * Check that the CSV exists on the local disk before attempting import.
+     * Returns false and redirects with an error when the file is absent.
+     * All source CSVs are gitignored (storage/app/.gitignore: *) and were
+     * never committed. Data was imported during the hackathon and is preserved
+     * in storage/backup/data4change_2019-05-25.sql.
+     */
+    protected function csvExists(string $path): bool
+    {
+        return Storage::disk('local')->exists($path);
+    }
+
+    protected function missingFileResponse(string $path): \Illuminate\Http\RedirectResponse
+    {
+        $full = storage_path('app/' . $path);
+        return redirect()->route('admin.import.index')
+            ->with('error', "CSV file not found: {$full} — "
+                . "Source files were never committed to the repository (gitignored). "
+                . "All data is already loaded from the SQL dump.");
     }
 
     protected function createCategory($payload) {
@@ -50,18 +72,21 @@ class ImportController extends Controller
 
     public function region () {
         $path = $this->root .'/luminosity/townships'. $this->extension;
+        if (!$this->csvExists($path)) return $this->missingFileResponse($path);
         Excel::import(new RegionsImport, $path);
         return redirect()->route('admin.import.index')->with('status', 'Region Import Success!');
     }
 
     public function city () {
         $path = $this->root .'/luminosity/townships'. $this->extension;
+        if (!$this->csvExists($path)) return $this->missingFileResponse($path);
         Excel::import(new CitiesImport, $path);
         return redirect()->route('admin.import.index')->with('status', 'City Import Success!');
     }
 
     public function township () {
         $path = $this->root .'/luminosity/townships'. $this->extension;
+        if (!$this->csvExists($path)) return $this->missingFileResponse($path);
         Excel::import(new TownshipsImport, $path);
         return redirect()->route('admin.import.index')->with('status', 'Township Import Success!');
     }
@@ -124,6 +149,7 @@ class ImportController extends Controller
         // $variables = $this->createVariables($variables);exit()
 
         $path = $this->root .'/health/GAD1617_M7A_Hospitals_20190514'. $this->extension;
+        if (!$this->csvExists($path)) return $this->missingFileResponse($path);
         Excel::import(new HospitalsImport, $path);
 
         return redirect()->route('admin.import.index')->with('status', 'Hospital Import Success!');
@@ -182,6 +208,7 @@ class ImportController extends Controller
         // $variables = $this->createVariables($variables);exit();
 
         $path = $this->root .'/living_standard/CS14_DrinkingWater_20190510'. $this->extension;
+        if (!$this->csvExists($path)) return $this->missingFileResponse($path);
         Excel::import(new DrinkingWatersImport, $path);
 
         return redirect()->route('admin.import.index')->with('status', 'Drinking Water Import Success!');
@@ -235,6 +262,7 @@ class ImportController extends Controller
         // $variables = $this->createVariables($variables);exit();
 
         $path = $this->root .'/demographics/religion'. $this->extension;
+        if (!$this->csvExists($path)) return $this->missingFileResponse($path);
         Excel::import(new ReligionsImport, $path);
 
         return redirect()->route('admin.import.index')->with('status', 'Religion Import Success!');
@@ -288,6 +316,7 @@ class ImportController extends Controller
         // $variables = $this->createVariables($variables);exit();
 
         $path = $this->root .'/agriculture/live_stock'. $this->extension;
+        if (!$this->csvExists($path)) return $this->missingFileResponse($path);
         Excel::import(new LiveStocksImport, $path);
 
         return redirect()->route('admin.import.index')->with('status', 'Live Stock Success!');
@@ -341,6 +370,7 @@ class ImportController extends Controller
         // $variables = $this->createVariables($variables);exit();
 
         $path = $this->root .'/natural_disasters/DisasterRiskClimate_20190514'. $this->extension;
+        if (!$this->csvExists($path)) return $this->missingFileResponse($path);
         Excel::import(new DiastersImport, $path);
 
         return redirect()->route('admin.import.index')->with('status', 'Diaster Import Success!');
@@ -374,6 +404,7 @@ class ImportController extends Controller
         // $variables = $this->createVariables($variables);exit();
 
         $path = $this->root .'/heritage_buildings/GAD1617_M8D_HeritageBuildings_20190513'. $this->extension;
+        if (!$this->csvExists($path)) return $this->missingFileResponse($path);
         Excel::import(new HeritageBuildingsImport, $path);
 
         return redirect()->route('admin.import.index')->with('status', 'Heritage Buildings Import Success!');

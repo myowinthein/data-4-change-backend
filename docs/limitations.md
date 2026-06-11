@@ -35,16 +35,29 @@ The endpoint always returns all cities and all years, regardless of the `cities`
 
 ---
 
-## 3. Admin CSV Import Buttons Will Fail
+## 3. Admin CSV Import Buttons — Source Files Not Available
 
-The import panel at `/import` shows buttons to import each data category. Each button posts to a route that calls `Excel::import()` with a **hardcoded file path** relative to the application:
+The import panel at `/import` shows buttons to import each data category. The source CSV files were **never committed** to the repository — `storage/app/.gitignore` contains `*` (ignore everything), so all files placed under `storage/app/` during the hackathon were excluded from git.
 
-```php
-$path = $this->root .'/health/GAD1617_M7A_Hospitals_20190514'. $this->extension;
-// resolves to: storage/app/excels/health/GAD1617_M7A_Hospitals_20190514.csv
-```
+Clicking any import button now shows a clear warning message instead of crashing:
 
-The source CSV files are **not included** in the repository. Clicking any import button will fail with a file-not-found error. This is expected — the panel is shown for demonstration purposes only. All data is already in the database via the SQL dump.
+> *CSV file not available. Source files were never committed to the repository (gitignored). All data is already loaded from the SQL dump.*
+
+**All data is already in the database** via `storage/backup/data4change_2019-05-25.sql`. Re-importing is not needed for normal operation or demonstration.
+
+**Expected CSV paths** (relative to `storage/app/`):
+
+| Button | Expected path |
+|---|---|
+| Region / City / Township | `excels/luminosity/townships.csv` |
+| Hospital | `excels/health/GAD1617_M7A_Hospitals_20190514.csv` |
+| Drinking Water | `excels/living_standard/CS14_DrinkingWater_20190510.csv` |
+| Religion | `excels/demographics/religion.csv` |
+| Live Stock | `excels/agriculture/live_stock.csv` |
+| Diaster | `excels/natural_disasters/DisasterRiskClimate_20190514.csv` |
+| Heritage Buildings | `excels/heritage_buildings/GAD1617_M8D_HeritageBuildings_20190513.csv` |
+
+If the original CSVs are ever recovered, place them at these paths and the import buttons will work without any code changes.
 
 ---
 
